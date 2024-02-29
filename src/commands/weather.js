@@ -20,23 +20,26 @@ export default {
 		const tempMin = data.days[0].tempmin;
 		const temp = data.days[0].temp;
 		const feelsLike = data.days[0].feelslike;
+		const windSpeed = data.days[0].windspeed;
+
+		let toString = ` __***Hello ${interaction.user.displayName}, it's ${dateTime}!***__`
+		toString += `\n\t\tToday will be ***${description}***`
+		toString += `\n\t\tThe temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with a min temp of ***${tempMin}°C***.`
+		toString += `\n\t\tThere's a ***${perChange}%*** chance of precipitation in ***${location}***.`;
 
 		if (snowDepth > 0) {
-			await interaction.reply(
-				` __***Hello ${interaction.user.displayName}, it's ${dateTime}!***__
-			Today will be ***${description}***
-			The temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with a min temp of ***${tempMin}°C***.
-			There's a ***${perChange}%*** chance of precipitation in ***${location}***, the max amount will be ***${snowDepth}mm*** of snow/rain.
-			*if this imformation seems wrong please let Neel know <3*`,
-			);
-		} else {
-			await interaction.reply(
-				` __***Hello ${interaction.user.displayName}, it's ${dateTime}!***__
-			Today will be ***${description}***
-			The temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with a min temp of ***${tempMin}°C***.
-			There's a ***${perChange}%*** chance of precipitation in ***${location}***.
-			\n*if this imformation seems wrong please let Neel know <3*`,
-			);
+			toString += `\n\t\tthere will be a snow fall of around ${snowDepth} cm.`
 		}
+
+		if (windSpeed >= 20){
+			toString += `\n\t\t__***WHOOOSH***__, The wind speed for today is ***${windSpeed} km/h***.`
+		} else {
+			toString += `\n\t\tThe wind speed for today is ***${windSpeed} km/h***.`
+		}
+
+
+		toString += `\n*if this imformation seems wrong please let Neel know <3*`;
+
+		await interaction.reply(toString);
 	},
 };
