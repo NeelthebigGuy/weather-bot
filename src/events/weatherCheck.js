@@ -4,8 +4,6 @@ import { getTime } from '../commands/changemessagetime.js';
 import { getit } from '../commands/changetimezone.js';
 /** @type {import('./index.js').Event<Events.ClientReady>} */
 
-
-
 export default {
 	name: Events.ClientReady,
 	once: false,
@@ -14,12 +12,11 @@ export default {
 		const url =
 			'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/halifax?unitGroup=metric&include=current&key=TANKKJ92T5WMLGAKU4TL8JXXM&contentType=json';
 
-		
 		let weathertime = 'UTC' + getit();
 
 		const job = new CronJob(
 			getTime(), // cronTime
-			async() => {
+			async () => {
 				const channel = client.channels.cache.get('1117510560691531857');
 
 				const response = await fetch(url);
@@ -32,31 +29,38 @@ export default {
 				const description = data.days[0].description;
 				const location = data.resolvedAddress;
 				const tempMin = data.days[0].tempmin;
+				const tempMax = data.days[0].tempmax;
 				const temp = data.days[0].temp;
 				const feelsLike = data.days[0].feelslike;
+				const windSpeed = data.days[0].windspeed;
+
+				let toString = `__***Hello, its time for the weather on ${dateTime}!***__`;
+				toString += `\n\t\tToday will be ***${description}***`;
+				toString += `\n\t\tThe temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with a low of ***${tempMin}°C*** and a high of ***${tempMax}°C***`;
 
 				if (description === undefined) {
 					console.log(`error finding weather with url:${url}`);
-				} else if (snowDepth >= 10) {
-					channel.send(` 
-                    __***Hello, its time for the weather on ${dateTime}!***__
-                    Today will be ***${description}***
-                    The temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with a min temp of ***${tempMin}°C***.
-                    There's a ***${perChange}%*** chance of precipitation in ***${location}***, the max amount will be ***${snowDepth}mm*** of snow/rain`);
-					channel.send(`\t\t__**ALERT ALERT**__ ** there might around ** __***${snowDepth}mm***__.
-                                ***Check another weather source incase of a storm!***`);
-				} else if (snowDepth > 0) {
-					channel.send(`
-                    __***Hello, its time for the weather on ${dateTime}!***__
-                    Today will be ***${description}***
-                    The temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with a min temp of ***${tempMin}°C***.
-                    There's a ***${perChange}%*** chance of precipitation in ***${location}***, the max amount will be ***${snowDepth}mm*** of snow/rain`);
+				}
+
+				if (windSpeed >= 20) {
+					toString += `\n\t\t__***WHOOOSH***__, The wind speed for today is ***${windSpeed} km/h***.`;
 				} else {
-					channel.send(`
-                    __***Hello, its time for the weather on ${dateTime}!***__
-                    Today will be ***${description}***
-                    The temperature is ***${temp}°C***, But it will feel like ***${feelsLike}°C***, with the lowest temp being ***${tempMin}°C***.
-                    There's a ***${perChange}%*** chance of precipitation in ***${location}***.`);
+					toString += `\n\t\tThe wind speed for today is ***${windSpeed} km/h***.`;
+				}
+
+				if (snowDepth >= 10) {
+					toString += `\n\t\tThere's a ***${perChange}%*** chance of precipitation in ***${location}***.`;
+					toString += `\n\t\t__***WOAH WOAH, ALERT ALERT, more than 10cm of snow!***__ (check another source)`;
+				} else if (snowDepth > 0) {
+					toString += `\n\t\tThere's a ***${perChange}%*** chance of precipitation in ***${location}***, the max amount will be ***${snowDepth}mm*** of snow/rain`;
+				} else {
+					toString += `\n\t\tThere's a ***${perChange}%*** chance of precipitation in ***${location}***`;
+				}
+
+				toString += `\n\n\t\t*If this imformation seems wrong, please let Neel know <3*`;
+
+				if (description !== undefined) {
+					channel.send(toString);
 				}
 
 				console.log(`Checked for weather!
